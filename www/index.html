@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="./css/racecontrol_bootstrap.css">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    <script src="../js/racecontrol.js"></script>
+
+    <title>RPi Slot Race Timer</title>
+  </head>
+  <body style="background-color: black">      
+
+        <script type="text/javascript">
+            $(document).ready(function() {                
+                // start websocket comms                
+                startWebsocket();                   
+            });         
+        </script>
+        
+        <!--navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">RPi Slotrace Timer</a>
+        </nav>
+        <!--/navbar-->        
+        
+        <div class="container-fluid">
+        <!-- <div class="container">  -->
+            <div class="row text-light mt-4 mb-4">  
+                <div class="col-3">
+                    <table id="race-state" class="table table-condensed table-dark table-bordered srt-top-table">
+                        <thead><tr><th scope="col">STATE</th></tr></thead>
+                        <tbody><tr><td class="racecontrol-race-state"></td></tr></tbody>
+                    </table>                
+                </div>         
+                
+                <div class="col-3">
+                    <table id="race-laps" class="table table-condensed table-dark table-bordered srt-top-table">
+                        <thead><tr><th scope="col">RACE LENGTH</th></tr></thead>
+                        <tbody><tr><td class="racecontrol-race-laps"></td></tr></tbody>
+                    </table>                
+                </div>    
+                
+                <div class="col-6 text-center">
+                    <!-- Start lights -->                 
+                    <table class="text-light srt-start-light-table">
+                        <tr>                
+                            <td><img class="startlight-red1" src="./images/DomeLight_offRed-100px.png" style="width: 64px; height: 64px;"></td>                    
+                            <td><img class="startlight-red2" src="./images/DomeLight_offRed-100px.png" style="width: 64px; height: 64px;"></td>                     
+                            <td><img class="startlight-red3" src="./images/DomeLight_offRed-100px.png" style="width: 64px; height: 64px;"></td>                    
+                            <td><img class="startlight-red4" src="./images/DomeLight_offRed-100px.png" style="width: 64px; height: 64px;"></td>                    
+                            <td><img class="startlight-red5" src="./images/DomeLight_offRed-100px.png" style="width: 64px; height: 64px;"></td>
+                        </tr>
+                        <tr>
+                            <td><img class="startlight-green" src="./images/DomeLight_offGreen-100px.png" style="width: 64px; height: 64px;"></td>
+                            <td><img class="startlight-yellow" src="./images/DomeLight_offYellow-100px.png" style="width: 64px; height: 64px;"></td>
+                            <td><img class="startlight-green" src="./images/DomeLight_offGreen-100px.png" style="width: 64px; height: 64px;"></td>
+                            <td><img class="startlight-yellow" src="./images/DomeLight_offYellow-100px.png" style="width: 64px; height: 64px;"></td>
+                            <td><img class="startlight-green" src="./images/DomeLight_offGreen-100px.png" style="width: 64px; height: 64px;"></td>
+                        </tr>
+                    </table>                      
+                </div>
+            </div>        
+        </div>
+        
+        <!--<div class="container"> -->
+        <div class="container-fluid">
+            <div class="col">
+                <div class="row mb-4">
+                    <table id="race-positions" class="table table-condensed table-dark ">
+                        <thead>
+                        <tr>
+                          <th scope="col" style="width: 10%;">POSITION</th>
+                          <th scope="col" style="width: 18%;">DRIVER</th>
+                          <th scope="col" style="width: 18%;">LAP</th>
+                          <th scope="col" style="width: 18%;">TIME</th>
+                          <th scope="col" style="width: 18%;">DIFF</th>
+                          <th scope="col" style="width: 18%;">BEST LAP TIME</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">                
+            <div class="row">
+                <div class="col">
+                    <table id="lane1-laps" class="table table-condensed table-dark">
+                        <thead>
+                            <tr class="bg-primary"><th colspan=3>DRIVER SLOT 1</th></tr>
+                            <tr><td>LAP</td><td>TIME</td><td>POSITION</td></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="col" >    
+                    <table id="lane2-laps" class="table table-condensed table-dark">
+                        <thead>                                
+                            <tr class="bg-danger"><th colspan=3>DRIVER SLOT 2</th></tr>
+                            <tr><td>LAP</td><td>TIME</td><td>POSITION</td></tr>                                
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>                
+            </div>
+        </div>
+        
+        <!--Footer-->
+        <footer class="footer font-small mt-1">      
+            <div class="footer-copyright text-center text-light">
+                RPi Slotrace Timer - Copyright (C) 2018  Dave van der Locht 
+            </div>        
+        </footer>
+        <!--/.Footer-->
+        
+  </body>
+</html>
