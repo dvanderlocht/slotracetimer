@@ -237,14 +237,14 @@ function handleFrame(data) {
             if (lane == 1) { bgcolor = "bg-primary"; } 
             else if (lane == 2) { bgcolor = "bg-danger"; }
             // append row
-            $("#race-positions tbody").append("<tr id=\"race-position-1\"><td class="+bgcolor+">1</td><td>Slot "+lane+"</td><td>"+lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+lap_percentage+"%</h2></td><td>"+lapseconds.toFixed(3)+"<br /><h2>Total: "+total_lap_time+"</h2></td><td>"+diff+"</td><td>"+bestlapseconds.toFixed(3)+"<br /><h2>(lap "+best_lap+")</h2></td></tr>");
+            $("#race-positions tbody").append("<tr id=\"race-position-1\"><td class="+bgcolor+">1</td><td>Slot "+lane+"</td><td>"+lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+lap_percentage.toFixed(2)+"%</h2></td><td>"+lapseconds.toFixed(3)+"<br /><h2>Total: "+total_lap_time+"</h2></td><td>"+diff+"</td><td>"+bestlapseconds.toFixed(3)+"<br /><h2>(lap "+best_lap+")</h2></td></tr>");
         } else if (position == 2) {
             $("#race-position-2").remove();
             // set bg-color
             if (lane == 1) { bgcolor = "bg-primary"; }
             else if (lane == 2) { bgcolor = "bg-danger"; }
             // append row
-            $("#race-positions tbody").append("<tr id=\"race-position-2\"><td class="+bgcolor+">2</td><td>Slot "+lane+"</td><td>"+lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+lap_percentage+"%</h2></td><td>"+lapseconds.toFixed(3)+"<br /><h2>Total: "+total_lap_time+"</h2></td><td>"+diff+"</td><td>"+bestlapseconds.toFixed(3)+"<br /><h2>(lap "+best_lap+")</h2></td></tr>");
+            $("#race-positions tbody").append("<tr id=\"race-position-2\"><td class="+bgcolor+">2</td><td>Slot "+lane+"</td><td>"+lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+lap_percentage.toFixed(2)+"%</h2></td><td>"+lapseconds.toFixed(3)+"<br /><h2>Total: "+total_lap_time+"</h2></td><td>"+diff+"</td><td>"+bestlapseconds.toFixed(3)+"<br /><h2>(lap "+best_lap+")</h2></td></tr>");
         }  
     }
     
