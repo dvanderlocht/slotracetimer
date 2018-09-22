@@ -417,6 +417,7 @@ class RaceControl(object):
         position = self.check_position_in_race(lane)        
         # Send lap time data to websocket clients         
         frame = {'frame_type': 1, 'lane': lane, 'lap': lap, 'time': lap_time, 'position': position } 
+        #print("Sent to websocket clients: " + json.dumps(frame, indent=4, sort_keys=True, default=str))
         asyncio.set_event_loop(asyncio.new_event_loop())
         for c in wsserver.clients:
             c.write_message(json.dumps(frame, indent=4, sort_keys=True, default=str))
@@ -427,32 +428,49 @@ class RaceControl(object):
         if self.__lane1_lapcount > self.__lane2_lapcount:
             # Lane 1 has first position
             # calc difference with pos 2
-            diff_lapcount = self.__lane1_lapcount - self.__lane2_lapcount            
-            frame1 = {'frame_type': 2, 'position': 1, 'lane': 1, 'lap': self.__lane1_lapcount, 'time': self.__lane1_last_lap_time, 'best_lap': self.__lane1_best_lap, 'best_lap_time': self.__lane1_best_lap_time, 'total_lap_time': self.__lane1_total_lap_time}
-            frame2 = {'frame_type': 2, 'position': 2, 'lane': 2, 'lap': self.__lane2_lapcount, 'time': self.__lane2_last_lap_time, 'best_lap': self.__lane2_best_lap, 'best_lap_time': self.__lane2_best_lap_time, 'total_lap_time': self.__lane2_total_lap_time, 'diff': self._get_diff_str(diff_lapcount)}            
+            diff_lapcount = self.__lane1_lapcount - self.__lane2_lapcount    
+            
+            # build json data
+            json_pos1 = '"position1": { "lane": 1, "lap": '+str(self.__lane1_lapcount)+', "time": "'+str(self.__lane1_last_lap_time)+'", "best_lap": '+str(self.__lane1_best_lap)+', "best_lap_time": "'+str(self.__lane1_best_lap_time)+'", "total_lap_time": "'+str(self.__lane1_total_lap_time)+'", "diff_lapcount": ""}'           
+            json_pos2 = '"position2": { "lane": 2, "lap": '+str(self.__lane2_lapcount)+', "time": "'+str(self.__lane2_last_lap_time)+'", "best_lap": '+str(self.__lane2_best_lap)+', "best_lap_time": "'+str(self.__lane2_best_lap_time)+'", "total_lap_time": "'+str(self.__lane2_total_lap_time)+'", "diff_lapcount": "'+str(diff_lapcount)+'"}'
+            json_data = '{"positions": { '+json_pos1+','+json_pos2+'} }' 
+
+            #print("Sent to websocket clients: " + json_data)
             for c in wsserver.clients:
-                c.write_message(json.dumps(frame1, indent=4, sort_keys=True, default=str))
-                c.write_message(json.dumps(frame2, indent=4, sort_keys=True, default=str))  
+                c.write_message(json_data)     
              
         elif self.__lane1_lapcount < self.__lane2_lapcount:
             # Lane 2 has first position
             # calc difference with pos 1
-            diff_lapcount = self.__lane2_lapcount - self.__lane1_lapcount                            
-            frame1 = {'frame_type': 2, 'position': 1, 'lane': 2, 'lap': self.__lane2_lapcount, 'time': self.__lane2_last_lap_time, 'best_lap': self.__lane2_best_lap, 'best_lap_time': self.__lane2_best_lap_time, 'total_lap_time': self.__lane2_total_lap_time}
-            frame2 = {'frame_type': 2, 'position': 2, 'lane': 1, 'lap': self.__lane1_lapcount, 'time': self.__lane1_last_lap_time, 'best_lap': self.__lane1_best_lap, 'best_lap_time': self.__lane1_best_lap_time, 'total_lap_time': self.__lane1_total_lap_time, 'diff': self._get_diff_str(diff_lapcount)}
+            diff_lapcount = self.__lane2_lapcount - self.__lane1_lapcount
+            
+            # build json data
+            json_pos1 = '"position1": { "lane": 2, "lap": '+str(self.__lane2_lapcount)+', "time": "'+str(self.__lane2_last_lap_time)+'", "best_lap": '+str(self.__lane2_best_lap)+', "best_lap_time": "'+str(self.__lane2_best_lap_time)+'", "total_lap_time": "'+str(self.__lane2_total_lap_time)+'", "diff_lapcount": ""}' 
+            json_pos2 = '"position2": { "lane": 1, "lap": '+str(self.__lane1_lapcount)+', "time": "'+str(self.__lane1_last_lap_time)+'", "best_lap": '+str(self.__lane1_best_lap)+', "best_lap_time": "'+str(self.__lane1_best_lap_time)+'", "total_lap_time": "'+str(self.__lane1_total_lap_time)+'", "diff_lapcount": "'+str(diff_lapcount)+'"}'                       
+            json_data = '{"positions": { '+json_pos1+','+json_pos2+'} }'                        
+        
+            #print("Sent to websocket clients: " + json_data)
             for c in wsserver.clients:
-                c.write_message(json.dumps(frame1, indent=4, sort_keys=True, default=str))                
-                c.write_message(json.dumps(frame2, indent=4, sort_keys=True, default=str)) 
+                c.write_message(json_data)   
         
         else:
             # skip if both lanes have equal lap counts
             if (self.__lane1_lapcount and self.__lane2_lapcount):
-                # Equal lap count  
-                frame1 = {'frame_type': 2, 'position': 1, 'lane': 1, 'lap': self.__lane1_lapcount, 'time': self.__lane1_last_lap_time, 'best_lap': self.__lane1_best_lap, 'best_lap_time': self.__lane1_best_lap_time, 'total_lap_time': self.__lane1_total_lap_time}
-                frame2 = {'frame_type': 2, 'position': 1, 'lane': 2, 'lap': self.__lane2_lapcount, 'time': self.__lane2_last_lap_time, 'best_lap': self.__lane2_best_lap, 'best_lap_time': self.__lane2_best_lap_time, 'total_lap_time': self.__lane2_total_lap_time}
+                # Equal lap count, use total_lap_time  
+                if (self.__lane1_total_lap_time < self.__lane2_total_lap_time):
+                    # build json data
+                    json_pos1 = '"position1": { "lane": 1, "lap": '+str(self.__lane1_lapcount)+', "time": "'+str(self.__lane1_last_lap_time)+'", "best_lap": '+str(self.__lane1_best_lap)+', "best_lap_time": "'+str(self.__lane1_best_lap_time)+'", "total_lap_time": "'+str(self.__lane1_total_lap_time)+'", "diff_lapcount": ""}'           
+                    json_pos2 = '"position2": { "lane": 2, "lap": '+str(self.__lane2_lapcount)+', "time": "'+str(self.__lane2_last_lap_time)+'", "best_lap": '+str(self.__lane2_best_lap)+', "best_lap_time": "'+str(self.__lane2_best_lap_time)+'", "total_lap_time": "'+str(self.__lane2_total_lap_time)+'", "diff_lapcount": ""}'
+                    json_data = '{"positions": { '+json_pos1+','+json_pos2+'} }'                                         
+                else:
+                    # build json data
+                    json_pos1 = '"position1": { "lane": 2, "lap": '+str(self.__lane2_lapcount)+', "time": "'+str(self.__lane2_last_lap_time)+'", "best_lap": '+str(self.__lane2_best_lap)+', "best_lap_time": "'+str(self.__lane2_best_lap_time)+'", "total_lap_time": "'+str(self.__lane2_total_lap_time)+'", "diff_lapcount": ""}'
+                    json_pos2 = '"position2": { "lane": 1, "lap": '+str(self.__lane1_lapcount)+', "time": "'+str(self.__lane1_last_lap_time)+'", "best_lap": '+str(self.__lane1_best_lap)+', "best_lap_time": "'+str(self.__lane1_best_lap_time)+'", "total_lap_time": "'+str(self.__lane1_total_lap_time)+'", "diff_lapcount": ""}'                       
+                    json_data = '{"positions": { '+json_pos1+','+json_pos2+'} }'                      
+                
+                print("Sent to websocket clients: " + json_data)
                 for c in wsserver.clients:
-                    c.write_message(json.dumps(frame1, indent=4, sort_keys=True, default=str))                
-                    c.write_message(json.dumps(frame2, indent=4, sort_keys=True, default=str))
+                    c.write_message(json_data)                    
                 
     def send_status_to_clients(self):           
         frame = {'frame_type': 0, 'race_state': racecontrol_status.race_state, 'race_laps': self.__laps }        

@@ -85,6 +85,10 @@ var RACE_STATE_FALSE_START = 6;
 
 var raceLapCount = 0;
 
+var lane1_bgcolor = "bg-primary";
+var lane2_bgcolor = "bg-danger";
+
+
 function resetView() {  
     $(".startlight-red1").attr("src", "./images/DomeLight_offRed-100px.png");    
     $(".startlight-red2").attr("src", "./images/DomeLight_offRed-100px.png");
@@ -100,13 +104,18 @@ function resetView() {
 
 
 function handleFrame(data) {
+    var position, lane, lap, time;
+
+    var pos1_lane, pos1_lap, pos1_best_lap, pos1_best_lap_time, pos1_time, pos1_total_lap_time, pos1_race_percentage, pos1_lapseconds, pos1_bestlapseconds;   
+    var pos2_lane, pos2_lap, pos2_best_lap, pos2_best_lap_time, pos2_time, pos2_total_lap_time, pos2_race_percentage, pos2_lapseconds, pos2_bestlapseconds, pos2_diff_lapcount;    
     
-    var objFrame = JSON.parse(data);    
-    var position, lane, lap, time, best_lap, best_lap_time, total_lap_time;
-    var a, b, lapseconds, bestlapseconds;
-    var lap_percentage;    
+    var objFrame = JSON.parse(data);
+        
+    //var position, lane, lap, time, best_lap, best_lap_time, total_lap_time;
+    //var a, b, lapseconds, bestlapseconds;
+    //var lap_percentage;
+    //var diff = "";
     
-    var diff = "";
         
     // general info frame
     if (objFrame.frame_type === FRAME_STATUS) {        
@@ -193,8 +202,8 @@ function handleFrame(data) {
         time = objFrame.time;
         position = objFrame.position;
         
-        a = time.split(':'); // split it at the colons
-        lapseconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
+        var a = time.split(':'); // split it at the colons
+        var lapseconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
         
         // beep
         beepElement.play();
@@ -209,43 +218,57 @@ function handleFrame(data) {
         
     }
     
-    // position info frame
-    else if (objFrame.frame_type === FRAME_POSITIONS) {
-        position = objFrame.position;
-        lane = objFrame.lane;
-        lap = objFrame.lap;
-        time = objFrame.time;
-        best_lap = objFrame.best_lap;
-        best_lap_time = objFrame.best_lap_time;
-        total_lap_time = objFrame.total_lap_time;
-        if (objFrame.diff) { diff = objFrame.diff; }
+    // position info frame     
+    else if (objFrame.positions) {        
 
-        a = time.split(':'); // split it at the colons
-        lapseconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);  
-        b = best_lap_time.split(':'); // split it at the colons
-        bestlapseconds = (+b[0]) * 60 * 60 + (+b[1]) * 60 + (+b[2]); 
+        pos1_lane = objFrame.positions.position1.lane;
+        pos1_lap = objFrame.positions.position1.lap;
+        pos1_best_lap = objFrame.positions.position1.best_lap;
+        pos1_best_lap_time = objFrame.positions.position1.best_lap_time;
+        pos1_time = objFrame.positions.position1.time;
+        pos1_total_lap_time = objFrame.positions.position1.total_lap_time.substring(0, objFrame.positions.position1.total_lap_time.length-3);    // strip last 3 characters 
+        pos1_race_percentage = pos1_lap/(raceLapCount/100);
         
-        total_lap_time = total_lap_time.substring(0, total_lap_time.length-3);    // strip 3 characters
+        var a1 = pos1_time.split(':'); // split it at the colons
+        pos1_lapseconds = (+a1[0]) * 60 * 60 + (+a1[1]) * 60 + (+a1[2]);
+        var b1 = pos1_best_lap_time.split(':'); // split it at the colons
+        pos1_bestlapseconds = (+b1[0]) * 60 * 60 + (+b1[1]) * 60 + (+b1[2]);
         
-        lap_percentage = lap/(raceLapCount/100); 
+        pos2_lane = objFrame.positions.position2.lane;
+        pos2_lap = objFrame.positions.position2.lap;
+        pos2_best_lap = objFrame.positions.position2.best_lap;
+        pos2_best_lap_time = objFrame.positions.position2.best_lap_time;
+        pos2_time = objFrame.positions.position2.time;
+        pos2_total_lap_time = objFrame.positions.position2.total_lap_time.substring(0, objFrame.positions.position2.total_lap_time.length-3);    // strip last 3 characters;        
+        pos2_race_percentage = pos2_lap/(raceLapCount/100);
+        pos2_diff_lapcount = objFrame.positions.position2.diff_lapcount;
+
+        var a2 = pos2_time.split(':'); // split it at the colons
+        pos2_lapseconds = (+a2[0]) * 60 * 60 + (+a2[1]) * 60 + (+a2[2]);
+        var b2 = pos2_best_lap_time.split(':'); // split it at the colons
+        pos2_bestlapseconds = (+b2[0]) * 60 * 60 + (+b2[1]) * 60 + (+b2[2]);         
         
-        var bgcolor;        
-        if (position == 1) {
-            // clear
-            $("#race-position-1").remove();
-            // set bg-color
-            if (lane == 1) { bgcolor = "bg-primary"; } 
-            else if (lane == 2) { bgcolor = "bg-danger"; }
-            // append row
-            $("#race-positions tbody").append("<tr id=\"race-position-1\"><td class="+bgcolor+">1</td><td>Slot "+lane+"</td><td>"+lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+lap_percentage.toFixed(2)+"%</h2></td><td>"+lapseconds.toFixed(3)+"<br /><h2>Total: "+total_lap_time+"</h2></td><td>"+diff+"</td><td>"+bestlapseconds.toFixed(3)+"<br /><h2>(lap "+best_lap+")</h2></td></tr>");
-        } else if (position == 2) {
-            $("#race-position-2").remove();
-            // set bg-color
-            if (lane == 1) { bgcolor = "bg-primary"; }
-            else if (lane == 2) { bgcolor = "bg-danger"; }
-            // append row
-            $("#race-positions tbody").append("<tr id=\"race-position-2\"><td class="+bgcolor+">2</td><td>Slot "+lane+"</td><td>"+lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+lap_percentage.toFixed(2)+"%</h2></td><td>"+lapseconds.toFixed(3)+"<br /><h2>Total: "+total_lap_time+"</h2></td><td>"+diff+"</td><td>"+bestlapseconds.toFixed(3)+"<br /><h2>(lap "+best_lap+")</h2></td></tr>");
+
+        var pos1_lane_bg = "";
+        var pos2_lane_bg = "";
+               
+        if (pos1_lane == 1) {                   // first position lane bg color 
+            pos1_lane_bg = lane1_bgcolor;
+        } else {
+            pos1_lane_bg = lane2_bgcolor;
         }  
+                    
+        if (pos2_lane == 1) {                   // second position lane bg color  
+            pos2_lane_bg = lane1_bgcolor;
+        } else {
+            pos2_lane_bg = lane2_bgcolor;
+        }    
+        
+        // refresh view
+        $("#race-position-1").remove();
+        $("#race-position-2").remove();
+        $("#race-positions tbody").append("<tr id=\"race-position-1\"><td>1</td><td class="+pos1_lane_bg+">Slot "+pos1_lane+"</td><td>"+pos1_lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+pos1_lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+pos1_race_percentage.toFixed(2)+"%</h2></td><td>"+pos1_lapseconds.toFixed(3)+"<br /><h2>Total: "+pos1_total_lap_time+"</h2></td><td></td><td>"+pos1_bestlapseconds.toFixed(3)+"<br /><h2>(lap "+pos1_best_lap+")</h2></td></tr>");
+        $("#race-positions tbody").append("<tr id=\"race-position-2\"><td>2</td><td class="+pos2_lane_bg+">Slot "+pos2_lane+"</td><td>"+pos2_lap+"<br><h2><progress class=\"progBarLaps\" id=\"progBar1\" value=\""+pos2_lap+"\" max=\""+raceLapCount+"\"></progress>&nbsp;&nbsp;"+pos2_race_percentage.toFixed(2)+"%</h2></td><td>"+pos2_lapseconds.toFixed(3)+"<br /><h2>Total: "+pos2_total_lap_time+"</h2></td><td>+"+pos2_diff_lapcount+" <h2>lap(s)</h2></td><td>"+pos2_bestlapseconds.toFixed(3)+"<br /><h2>(lap "+pos2_best_lap+")</h2></td></tr>");        
     }
     
     // countdown frame

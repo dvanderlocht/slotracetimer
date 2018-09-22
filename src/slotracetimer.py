@@ -78,7 +78,7 @@ def sensor_callback(channel):
                 # Lap time must be too short                
                 l1laptime = now - racecontrol_obj.lane1_start_time  
                 elapsedms = l1laptime.total_seconds() * 1000                              
-                if elapsedms > 250:
+                if elapsedms > 750:
                     racecontrol_obj.lane1_last_lap_time = l1laptime
                     racecontrol_obj.lane1_start_time = datetime.datetime.now()       
                     racecontrol_obj.lane1_total_lap_time = racecontrol_obj.lane1_total_lap_time + l1laptime         
@@ -111,7 +111,7 @@ def sensor_callback(channel):
                 # Lap time must be too short
                 l2laptime = now - racecontrol_obj.lane2_start_time                
                 elapsedms = l2laptime.total_seconds() * 1000                              
-                if elapsedms > 250:
+                if elapsedms > 750:
                     racecontrol_obj.lane2_last_lap_time = l2laptime
                     racecontrol_obj.lane2_start_time = datetime.datetime.now()     
                     racecontrol_obj.lane2_total_lap_time = racecontrol_obj.lane2_total_lap_time + l2laptime           
